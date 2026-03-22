@@ -1,0 +1,4 @@
+include 'microservices:product-service'
+include 'spring-cloud:eureka-server'
+include ':api'
+include ':utils'
