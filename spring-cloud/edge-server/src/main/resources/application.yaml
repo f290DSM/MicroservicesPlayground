@@ -14,6 +14,26 @@ spring:
               uri: lb://product-service
               predicates:
                 - Path=/product/**
+            - id: product-composite-service
+              uri: lb://product-composite-service
+              predicates:
+                - Path=/product-composite/**
+            - id: product-composite-swagger-ui
+              uri: lb://product-composite-service
+              predicates:
+                - Path=/openapi/**
+            - id: product-composite-swagger-resources
+              uri: lb://product-composite-service
+              predicates:
+                - Path=/webjars/**
+            - id: product-composite-swagger-ui-resources
+              uri: lb://product-composite-service
+              predicates:
+                - Path=/swagger-ui/**
+            - id: product-composite-api-docs
+              uri: lb://product-composite-service
+              predicates:
+                - Path=/openapi/v3/api-docs,/openapi/v3/api-docs/**
 eureka:
   client:
     register-with-eureka: true

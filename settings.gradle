@@ -1,4 +1,5 @@
 include 'microservices:product-service'
+include 'microservices:product-composite-service'
 include 'spring-cloud:eureka-server'
 include 'spring-cloud:edge-server'
 include ':api'

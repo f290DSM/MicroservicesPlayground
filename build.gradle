@@ -18,3 +18,23 @@ dependencies {
 test {
     useJUnitPlatform()
 }
+
+tasks.register('stopServices', Exec) {
+    description = 'Stop all running microservices'
+    commandLine 'pkill', '-f', 'product-service|eureka-server|edge-server|product-composite-service'
+    ignoreExitValue = true
+}
+
+tasks.register('startServices', Exec) {
+    description = 'Start all microservices in background'
+    commandLine 'sh', '-c', '''
+        ./gradlew :spring-cloud:eureka-server:bootRun &
+        sleep 10
+        ./gradlew :microservices:product-service:bootRun &
+        sleep 5
+        ./gradlew :microservices:product-composite-service:bootRun &
+        sleep 5
+        ./gradlew :spring-cloud:edge-server:bootRun &
+        echo "All services started in background"
+    '''
+}

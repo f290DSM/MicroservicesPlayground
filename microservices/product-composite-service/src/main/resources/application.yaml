@@ -1,0 +1,83 @@
+spring:
+  application:
+    name: product-composite-service
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    initialInstanceInfoReplicationIntervalSeconds: 5
+    registryFetchIntervalSeconds: 5
+  instance:
+    leaseRenewalIntervalInSeconds: 5
+    leaseExpirationDurationInSeconds: 5
+
+springdoc:
+  swagger-ui.path: /openapi/swagger-ui.html
+  api-docs.path: /openapi/v3/api-docs
+  packagesToScan: dev.sdras.microservices.composite.product
+  pathsToMatch: /**
+  swagger-ui:
+    config-url: /openapi/v3/api-docs/swagger-config
+    url: /openapi/v3/api-docs
+    try-it-out-enabled: true
+    filter: true
+  api-docs:
+    path: /openapi/v3/api-docs
+
+server:
+  forward-headers-strategy: framework
+  port: 8000
+
+api:
+  common:
+    version: 1.0.0
+    title: Product Composite API
+    description: API de unificação de informações de produtos, recomendações e reviews.
+    termsOfService: Em desenvolvimento...
+    license: Em desenvolvimento...
+    licenseUrl: Em desenvolvimento...
+
+    externalDocDesc: Em desenvolvimento...
+    externalDocUrl: Em desenvolvimento...
+    contact:
+      name: Esdras B Silva
+      url: sdras.dev
+      email: esdras.silva@cps.sp.gov.br
+
+  responseCodes:
+    ok.description: OK
+    badRequest.description: Bad Request, formato inválido de requisição. Veja a mensagem de resposta para maiores detalhes.
+    notFound.description: Not found, o id especificado não existe.
+    unprocessableEntity.description: Unprocessable entity, parâmetros de entrada causaram falha no processamento. Veja a mensagem de resposta para maiores detalhes.
+
+  product-composite:
+    get-composite-product:
+      description: Retorna uma visão composta do produto especificado por id.
+      notes: |
+        # Resposta normal
+        Se o id do produto solicitado for encontrado, o método retornará informações sobre:
+        1. Product information
+        2. Reviews
+        3. Recommendations
+        4. Service Addresses\n(informações técnicas sobre os endereços dos microsserviços que criaram a resposta)
+        
+        # Expectativa parcial e responstas com erros.
+        1. Se nenhuma informação do produto for encontrada, um erro **404 - Not Found** será retornado
+        2. Se nenhuma recomendação ou review for encontrada para um produto, uma resposta parcial será retornada
+
+app:
+  product-service:
+    host: localhost
+    port: 8001
+  recommendation-service:
+    host: localhost
+    port: 8002
+  review-service:
+    host: localhost
+    port: 8003
+
+logging:
+  level:
+    root: INFO
+    dev.sdras: DEBUG
