@@ -8,4 +8,5 @@
 | Service Discovery                       | [Clique aqui](assets/service-discovery.md)  |
 | Edge Server                             | [Clique aqui](assets/edge-server.md)        |
 | Desafio MicroServices - Aula Presencial | [Clique aqui](assets/desafio-presencial.md) |
-
+| Tutorial Swagger com OpenAPI            | [Clique aqui](assets/swagger.md)           |
+| Tutorial OpenFeign                     | [Clique aqui](assets/openfeign.md)          |
