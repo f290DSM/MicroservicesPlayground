@@ -5,7 +5,7 @@ spring:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://10.68.12.96:8761/eureka/
     initialInstanceInfoReplicationIntervalSeconds: 5
     registryFetchIntervalSeconds: 5
   instance:
@@ -13,5 +13,5 @@ eureka:
     leaseExpirationDurationInSeconds: 5
 #    instanceId: ${spring.application.name}:${random.value}
 
-#server:
-#  port: 0
+server:
+  port: 8002
