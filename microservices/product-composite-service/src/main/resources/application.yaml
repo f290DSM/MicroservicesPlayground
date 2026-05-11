@@ -52,6 +52,11 @@ api:
     unprocessableEntity.description: Unprocessable entity, parâmetros de entrada causaram falha no processamento. Veja a mensagem de resposta para maiores detalhes.
 
   product-composite:
+    create-composite-product:
+      description: Cria uma visão composta de produto.
+      notes: |
+        # Requisição normal
+        Cria o produto principal e, quando informados, suas recomendações e reviews.
     get-composite-product:
       description: Retorna uma visão composta do produto especificado por id.
       notes: |
@@ -65,6 +70,11 @@ api:
         # Expectativa parcial e responstas com erros.
         1. Se nenhuma informação do produto for encontrada, um erro **404 - Not Found** será retornado
         2. Se nenhuma recomendação ou review for encontrada para um produto, uma resposta parcial será retornada
+    delete-composite-product:
+      description: Remove uma visão composta de produto.
+      notes: |
+        # Requisição normal
+        Remove o produto principal e suas recomendações e reviews associadas.
 
 app:
   product-service:

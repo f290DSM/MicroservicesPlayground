@@ -9,18 +9,18 @@ import dev.sdras.api.core.review.ReviewService;
 import dev.sdras.api.exceptions.InvalidInputException;
 import dev.sdras.api.exceptions.NotFoundException;
 import dev.sdras.microservices.composite.product.services.feign.ProductFeignClient;
+import dev.sdras.microservices.composite.product.services.feign.RecommendationFeignClient;
+import dev.sdras.microservices.composite.product.services.feign.ReviewFeignClient;
 import dev.sdras.utils.http.HttpErrorInfo;
-import dev.sdras.utils.http.ServiceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import tools.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -31,57 +31,133 @@ public class ProductCompositeIntegration implements ProductService, ReviewServic
 
     private final ObjectMapper mapper;
     private final ProductFeignClient productFeignClient;
-
-    private final String productServiceUrl;
-    //TODO: Criar atributos para urls de recomendações e reviews
+    private final RecommendationFeignClient recommendationFeignClient;
+    private final ReviewFeignClient reviewFeignClient;
 
     @Autowired
     public ProductCompositeIntegration(
             ObjectMapper mapper,
-            ProductFeignClient productFeignClient, ServiceUtil serviceUtil,
-            @Value("${app.product-service.host}") String productServiceHost,
-            @Value("${app.product-service.port}") int productServicePort
-            //TODO: Carregar os endereços e portas dos serviços de recomendação e review
+            ProductFeignClient productFeignClient,
+            RecommendationFeignClient recommendationFeignClient,
+            ReviewFeignClient reviewFeignClient
     ) {
         this.mapper = mapper;
         this.productFeignClient = productFeignClient;
-        productServiceUrl = "http://" + productServiceHost + ":" + productServicePort + "/product/";
+        this.recommendationFeignClient = recommendationFeignClient;
+        this.reviewFeignClient = reviewFeignClient;
     }
 
     @Override
-    public Product getProduct(Integer productId) {
+    public Product createProduct(Product body) {
         try {
-            String url = productServiceUrl + productId;
-            LOG.debug("Will call getProduct API on URL: {}", url);
+            LOG.debug("Will call createProduct API for productId={}", body.getProductId());
+            return productFeignClient.createProduct(body);
+        } catch (HttpClientErrorException e) {
+            throw handleHttpClientException(e);
+        }
+    }
 
+    @Override
+    public Product getProduct(int productId) {
+        try {
+            LOG.debug("Will call getProduct API for productId={}", productId);
             Product product = productFeignClient.getProduct(productId);
-            LOG.debug("Found a product with id: {}", product.productId);
+            LOG.debug("Found a product with id: {}", product.getProductId());
 
             return product;
         } catch (HttpClientErrorException e) {
-            switch (Objects.requireNonNull(HttpStatus.resolve(e.getStatusCode().value()))) {
-                case NOT_FOUND:
-                    throw new NotFoundException(getErrorMessage(e));
-                case UNPROCESSABLE_CONTENT:
-                    throw new InvalidInputException(getErrorMessage(e));
-                default:
-                    LOG.warn("Got an unexpected HTTP error: {}, will rethrow it", e.getStatusCode());
-                    LOG.warn("Error body: {}", e.getResponseBodyAsString());
-                    throw e;
-            }
+            throw handleHttpClientException(e);
+        }
+    }
+
+    @Override
+    public void deleteProduct(int productId) {
+        try {
+            LOG.debug("Will call deleteProduct API for productId={}", productId);
+            productFeignClient.deleteProduct(productId);
+        } catch (HttpClientErrorException e) {
+            throw handleHttpClientException(e);
+        }
+    }
+
+    @Override
+    public Recommendation createRecommendation(Recommendation body) {
+        try {
+            LOG.debug("Will call createRecommendation API for productId={}, recommendationId={}",
+                    body.getProductId(),
+                    body.getRecommendationId());
+            return recommendationFeignClient.createRecommendation(body);
+        } catch (HttpClientErrorException e) {
+            throw handleHttpClientException(e);
         }
     }
 
     @Override
     public List<Recommendation> getRecommendations(int productId) {
-        //TODO: Implementar consulta de recomendações
-        return List.of();
+        try {
+            LOG.debug("Will call getRecommendations API for productId={}", productId);
+            return recommendationFeignClient.getRecommendations(productId);
+        } catch (Exception e) {
+            LOG.warn("Got an exception while requesting recommendations, return zero recommendations: {}", e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public void deleteRecommendations(int productId) {
+        try {
+            LOG.debug("Will call deleteRecommendations API for productId={}", productId);
+            recommendationFeignClient.deleteRecommendations(productId);
+        } catch (HttpClientErrorException e) {
+            throw handleHttpClientException(e);
+        }
+    }
+
+    @Override
+    public Review createReview(Review body) {
+        try {
+            LOG.debug("Will call createReview API for productId={}, reviewId={}",
+                    body.getProductId(),
+                    body.getReviewId());
+            return reviewFeignClient.createReview(body);
+        } catch (HttpClientErrorException e) {
+            throw handleHttpClientException(e);
+        }
     }
 
     @Override
     public List<Review> getReviews(int productId) {
-        //TODO: Implementar consulta de reviews
-        return List.of();
+        try {
+            LOG.debug("Will call getReviews API for productId={}", productId);
+            return reviewFeignClient.getReviews(productId);
+        } catch (Exception e) {
+            LOG.warn("Got an exception while requesting reviews, return zero reviews: {}", e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public void deleteReviews(int productId) {
+        try {
+            LOG.debug("Will call deleteReviews API for productId={}", productId);
+            reviewFeignClient.deleteReviews(productId);
+        } catch (HttpClientErrorException e) {
+            throw handleHttpClientException(e);
+        }
+    }
+
+    private RuntimeException handleHttpClientException(HttpClientErrorException ex) {
+        switch (Objects.requireNonNull(HttpStatus.resolve(ex.getStatusCode().value()))) {
+            case NOT_FOUND:
+                return new NotFoundException(getErrorMessage(ex));
+            case UNPROCESSABLE_ENTITY:
+            case UNPROCESSABLE_CONTENT:
+                return new InvalidInputException(getErrorMessage(ex));
+            default:
+                LOG.warn("Got an unexpected HTTP error: {}, will rethrow it", ex.getStatusCode());
+                LOG.warn("Error body: {}", ex.getResponseBodyAsString());
+                return ex;
+        }
     }
 
     private String getErrorMessage(HttpClientErrorException ex) {

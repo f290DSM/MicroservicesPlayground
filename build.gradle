@@ -21,7 +21,7 @@ test {
 
 tasks.register('stopServices', Exec) {
     description = 'Stop all running microservices'
-    commandLine 'pkill', '-f', 'product-service|eureka-server|edge-server|product-composite-service'
+    commandLine 'pkill', '-f', 'product-service|recommendation-service|review-service|eureka-server|edge-server|product-composite-service'
     ignoreExitValue = true
 }
 
@@ -31,6 +31,10 @@ tasks.register('startServices', Exec) {
         ./gradlew :spring-cloud:eureka-server:bootRun &
         sleep 10
         ./gradlew :microservices:product-service:bootRun &
+        sleep 5
+        ./gradlew :microservices:recommendation-service:bootRun &
+        sleep 5
+        ./gradlew :microservices:review-service:bootRun &
         sleep 5
         ./gradlew :microservices:product-composite-service:bootRun &
         sleep 5

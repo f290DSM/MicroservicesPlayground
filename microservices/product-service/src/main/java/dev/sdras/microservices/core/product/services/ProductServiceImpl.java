@@ -21,8 +21,24 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product getProduct(Integer productId) {
+    public Product createProduct(Product body) {
+        LOG.debug("/product create product for productId={}", body.getProductId());
+        return new Product(
+                body.getProductId(),
+                body.getName(),
+                body.getWeight(),
+                serviceUtil.getServerAddress()
+        );
+    }
+
+    @Override
+    public Product getProduct(int productId) {
         LOG.debug("/product return the found product for productId={}", productId);
         return new Product(productId, "Product: " + productId, new Random().nextInt(2000), serviceUtil.getServerAddress());
+    }
+
+    @Override
+    public void deleteProduct(int productId) {
+        LOG.debug("/product delete product for productId={}", productId);
     }
 }

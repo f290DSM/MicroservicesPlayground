@@ -1,14 +1,26 @@
 package dev.sdras.microservices.composite.product.services.feign;
 
 import dev.sdras.api.core.product.Product;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient("product-service")
 public interface ProductFeignClient {
+    @PostMapping(
+            value = "/product",
+            consumes = "application/json",
+            produces = "application/json")
+    Product createProduct(@RequestBody Product body);
+
     @GetMapping(
             value = "/product/{productId}",
             produces = "application/json")
-    Product getProduct(@PathVariable Integer productId);
+    Product getProduct(@PathVariable int productId);
+
+    @DeleteMapping(value = "/product/{productId}")
+    void deleteProduct(@PathVariable int productId);
 }

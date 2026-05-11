@@ -1,4 +1,4 @@
-package dev.sdras.productservice;
+package dev.sdras.microservices.core.product;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
